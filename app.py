@@ -8,6 +8,8 @@ interactive K-Means clustering, and a dynamic bar chart race.
 
 import streamlit as st
 import pandas as pd
+import numpy as np
+import re
 import plotly.express as px
 import plotly.graph_objects as go
 from sklearn.ensemble import RandomForestClassifier
@@ -17,7 +19,7 @@ from sklearn.preprocessing import StandardScaler
 # Page configuration for a premium layout
 st.set_page_config(page_title="A Needle in the Kindle", layout="wide", page_icon="📚")
 
-# Upgrade 1: Custom CSS for a premium data journalism aesthetic
+# Custom CSS for a premium data journalism aesthetic
 st.markdown("""
     <style>
     /* Main background and typography */
@@ -36,12 +38,34 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
+def clean_price(val):
+    """
+    Robust parsing of price strings to extract numeric values.
+    Handles values like 'from 36.34' or '-' gracefully.
+    """
+    if pd.isna(val):
+        return np.nan
+    s = str(val).strip()
+    if s.lower() in ('', 'none', 'nan', 'n/a', 'null', '—'):
+        return np.nan
+    s_clean = s.replace(',', '')
+    matches = re.findall(r'\d+\.?\d*', s_clean)
+    if not matches:
+        return np.nan
+    try:
+        price = float(matches[0])
+        if price <= 0 or not np.isfinite(price):
+            return np.nan
+        return price
+    except ValueError:
+        return np.nan
+
 
 @st.cache_data
 def load_data():
     """
-    Loads and cleans the dataset. Caches the result to prevent reloading
-    during active user sessions.
+    Loads and cleans the dataset using the robust extraction methods.
+    Caches the result to prevent reloading during active user sessions.
     """
     try:
         df = pd.read_csv("classified_books.csv")
@@ -49,17 +73,23 @@ def load_data():
         st.error("Data file not found. Please ensure 'classified_books.csv' is in the directory.")
         st.stop()
 
-    # Rename columns to match the rest of the application code
-    df = df.rename(columns={'price_raw': 'price_real_2022', 'pub_year': 'year'})
+    # Align column names with expected dashboard variables
+    if 'pub_year' in df.columns:
+        df = df.rename(columns={'pub_year': 'year'})
+    
+    # Apply robust price extraction from raw strings
+    if 'price_raw' in df.columns:
+        df['price_real_2022'] = df['price_raw'].apply(clean_price)
+    elif 'price_real_2022' in df.columns:
+        df['price_real_2022'] = df['price_real_2022'].apply(clean_price)
 
-    # Basic data cleaning and null dropping
-    df = df.dropna(subset=['price_real_2022', 'year', 'rating_number', 'average_rating'])
+    # Basic data cleaning and null dropping for modeling
+    df = df.dropna(subset=['price_real_2022', 'year', 'rating_number', 'average_rating', 'Is_Kindle'])
+    
+    # Ensure standard types for the model
+    df['year'] = df['year'].astype(int)
+    
     return df
-
-
-
-
-
 
 
 df = load_data()
@@ -81,6 +111,7 @@ def train_rf_model(data):
 
 
 rf_model, rf_features = train_rf_model(df)
+
 
 # Dashboard Title
 st.title("📚 A Needle in the Kindle: Market Dashboard")
@@ -119,7 +150,7 @@ if page == "1. The ML Predictor":
     gauge_col, text_col = st.columns([1, 1])
 
     with gauge_col:
-        # Upgrade 3: Plotly Gauge Chart replacing the basic st.progress
+        # Plotly Gauge Chart
         fig_gauge = go.Figure(go.Indicator(
             mode="gauge+number",
             value=prob[1] * 100,
@@ -154,7 +185,7 @@ if page == "1. The ML Predictor":
             st.info("📖 **CLASSIFIED AS: PHYSICAL BOOK**")
             st.markdown("The algorithm determines this profile aligns more closely with traditional print publishing economics.")
 
-        # Upgrade 4: Data Explainer Tooltip
+        # Data Explainer Tooltip
         with st.expander("How does the Random Forest decide?"):
             st.write("""
             The model uses a collection of **Decision Trees** that look at historical thresholds. 
@@ -196,7 +227,7 @@ elif page == "2. Cluster Explorer":
     fig_scatter.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
     st.plotly_chart(fig_scatter, use_container_width=True)
 
-    # Upgrade 4: Explainer section for business terminology
+    # Explainer section for business terminology
     st.info("💡 **Understanding the Segments (Clusters):**")
     col_a, col_b = st.columns(2)
     with col_a:
@@ -212,19 +243,23 @@ elif page == "2. Cluster Explorer":
 elif page == "3. Volume Over Time":
     st.header("📈 The Digital Publishing Explosion")
 
-    # Create a complete grid of years and sources to ensure smooth animation
+    # Aggregate annual volume and calculate cumulative sums for racing bar chart
+    if 'source_db' not in df.columns and 'source' in df.columns:
+        df['source_db'] = df['source']
+    elif 'source_db' not in df.columns:
+        # Fallback based on prediction/classification if needed
+        df['source_db'] = df['Is_Kindle'].apply(lambda x: 'Kindle_Store' if x == 1 else 'Books')
+
     years = range(df['year'].min(), df['year'].max() + 1)
     sources = df['source_db'].unique()
     idx = pd.MultiIndex.from_product([years, sources], names=['year', 'source_db'])
 
-    # Aggregate annual volume and reindex to fill missing years with 0
     annual_df = df.groupby(['year', 'source_db']).size().reindex(idx, fill_value=0).reset_index(name='Annual_Count')
     annual_df = annual_df.sort_values(by=['year'])
 
-    # Calculate cumulative volume for the race effect
     annual_df['Cumulative_Volume'] = annual_df.groupby('source_db')['Annual_Count'].cumsum()
 
-    # Upgrade 2: Animated Bar Chart Race using Plotly
+    # Animated Bar Chart Race using Plotly
     fig_race = px.bar(
         annual_df,
         x="Cumulative_Volume",
@@ -239,7 +274,6 @@ elif page == "3. Volume Over Time":
         color_discrete_map={'Books': '#4b0082', 'Kindle_Store': '#e67e22'}
     )
 
-    # Speed up the animation and clean up the layout
     fig_race.layout.updatemenus[0].buttons[0].args[1]['frame']['duration'] = 800
     fig_race.update_layout(
         plot_bgcolor='rgba(0,0,0,0)',
@@ -248,5 +282,4 @@ elif page == "3. Volume Over Time":
     )
 
     st.plotly_chart(fig_race, use_container_width=True)
-
     st.caption("Press 'Play' on the timeline axis above to watch the Kindle store rapidly overtake traditional books.")
