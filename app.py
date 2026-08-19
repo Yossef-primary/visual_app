@@ -36,6 +36,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
+
 @st.cache_data
 def load_data():
     """
@@ -45,15 +46,20 @@ def load_data():
     try:
         df = pd.read_csv("classified_books.csv")
     except FileNotFoundError:
-        try:
-            df = pd.read_csv("classified_books.csv")
-        except FileNotFoundError:
-            st.error("Data file not found. Please ensure 'classified_books.csv' is in the directory.")
-            st.stop()
+        st.error("Data file not found. Please ensure 'classified_books.csv' is in the directory.")
+        st.stop()
+
+    # Rename columns to match the rest of the application code
+    df = df.rename(columns={'price_raw': 'price_real_2022', 'pub_year': 'year'})
 
     # Basic data cleaning and null dropping
     df = df.dropna(subset=['price_real_2022', 'year', 'rating_number', 'average_rating'])
     return df
+
+
+
+
+
 
 
 df = load_data()
