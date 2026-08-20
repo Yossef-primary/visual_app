@@ -355,7 +355,7 @@ elif page == "💰 The Economic Divide":
             )
             st.caption("Only one publication year is present in this sample — showing a snapshot instead of a trend.")
         fig_vol.update_layout(plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)")
-        st.plotly_chart(fig_vol, use_container_width=True)
+        st.plotly_chart(fig_vol, width='stretch')
 
     with col2:
         st.subheader("Median real price (2022 USD)")
@@ -374,7 +374,7 @@ elif page == "💰 The Economic Divide":
             )
             st.caption("Only one publication year is present in this sample — showing a snapshot instead of a trend.")
         fig_price.update_layout(plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)")
-        st.plotly_chart(fig_price, use_container_width=True)
+        st.plotly_chart(fig_price, width='stretch')
 
 # ============================================================
 # PAGE: THE LOSS LEADER IDENTITY (H2)
@@ -445,7 +445,7 @@ elif page == "🎯 The Loss Leader Identity":
         hovertemplate="Price: $%{x:.2f}<br>Ratings: %{y:,.0f}<extra></extra>"
     )
     fig_scatter.update_layout(plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)")
-    st.plotly_chart(fig_scatter, use_container_width=True)
+    st.plotly_chart(fig_scatter, width='stretch')
 
     st.markdown("#### Understanding the segments")
     col_a, col_b = st.columns(2)
@@ -528,7 +528,7 @@ elif page == "🤖 Price as a Digital Fingerprint":
                 },
             ))
             fig_gauge.update_layout(height=300, margin=dict(l=20, r=20, t=50, b=20))
-            st.plotly_chart(fig_gauge, use_container_width=True)
+            st.plotly_chart(fig_gauge, width='stretch')
 
         with text_col:
             st.subheader("Model classification")
@@ -558,7 +558,7 @@ elif page == "🤖 Price as a Digital Fingerprint":
             color="Importance", color_continuous_scale=[PALETTE["navy_light"], PALETTE["kindle_orange"]],
         )
         fig_imp.update_layout(plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)", coloraxis_showscale=False)
-        st.plotly_chart(fig_imp, use_container_width=True)
+        st.plotly_chart(fig_imp, width='stretch')
 
 # ============================================================
 # PAGE: READING COMMUNITIES (NETWORK ANALYSIS / PAGERANK)
@@ -628,7 +628,7 @@ elif page == "📈 Volume Over Time":
             labels={"source_db": "Format"},
         )
         fig_static.update_layout(plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)", height=300)
-        st.plotly_chart(fig_static, use_container_width=True)
+        st.plotly_chart(fig_static, width='stretch')
     else:
         years = range(int(df["year"].min()), int(df["year"].max()) + 1)
         sources = df["source_db"].unique()
@@ -659,5 +659,5 @@ elif page == "📈 Volume Over Time":
             yaxis={"categoryorder": "total ascending"},
             height=420,
         )
-        st.plotly_chart(fig_race, use_container_width=True)
+        st.plotly_chart(fig_race, width='stretch')
         st.caption("Press 'Play' on the timeline axis above to watch the Kindle store rapidly overtake traditional books.")
