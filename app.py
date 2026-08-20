@@ -4,11 +4,11 @@ A Needle in the Kindle — Premium Data Journalism Dashboard
 Interactive exploration of the digital publishing revolution (2000-2022).
 
 Refactored for:
-- Full Bilingual Support (English / Hebrew).
-- Deep RTL numerical fixes using \u200E LRM characters.
-- Highly polished, academic-grade Hebrew translations.
-- 7 Tabs including "Reading Communities" (Louvain/PageRank) and "Supply Shock".
-- Eradicated default Streamlit red colors via aggressive CSS overrides.
+- Full Bilingual Support (English / Hebrew toggle).
+- Dynamic LTR / RTL CSS rendering with perfect numerical alignments (\u200E).
+- Simplified, highly readable, and professional Hebrew copy.
+- 7 Tabs including "Supply Shock" and the newly fully-interactive "Network Analysis" (PageRank & Louvain).
+- Premium UI/UX with corporate gray-blue color palette.
 
 NOTE: All internal code comments and docstrings remain strictly in English.
 """
@@ -229,7 +229,7 @@ st.write("")
 # ============================================================
 tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
     t("🏠 Summary", "🏠 תקציר מחקר"),
-    t("💰 Economics", "💰 הפער הכלכלי"),
+    t("💰 Economics", "💰 פער כלכלי"),
     t("🎯 Loss Leader", "🎯 מחירי רצפה"),
     t("🤖 ML Predictor", "🤖 מודל חיזוי"),
     t("🕸️ Networks", "🕸️ ניתוח רשתות"),
@@ -242,12 +242,12 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
 # ============================================================
 with tab1:
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric(t("Titles Analyzed", "כותרים שנותחו"), f"\u200E{len(df):,}\u200E")
-    c2.metric(t("Kindle Share", "נתח שוק - קינדל"), f"\u200E{(df['Is_Kindle'].mean() * 100):.1f}%\u200E" if df['Is_Kindle'].nunique() > 1 else "n/a")
+    c1.metric(t("Titles Analyzed", "כותרים במדגם"), f"\u200E{len(df):,}\u200E")
+    c2.metric(t("Kindle Share", "נתח שוק דיגיטלי"), f"\u200E{(df['Is_Kindle'].mean() * 100):.1f}%\u200E" if df['Is_Kindle'].nunique() > 1 else "n/a")
     c3.metric(t("Median Price", "מחיר חציוני"), f"\u200E${df['price_real_2022'].median():.2f}\u200E")
-    c4.metric(t("Timeline", "טווח זמן"), f"\u200E{df['year'].min()}–{df['year'].max()}\u200E")
+    c4.metric(t("Timeline", "טווח המחקר"), f"\u200E{df['year'].min()}–{df['year'].max()}\u200E")
 
-    st.markdown(t("### Research Methodology", "### מתודולוגיית המחקר"))
+    st.markdown(t("### Research Methodology", "### תהליך העבודה ושיטות המחקר"))
     st.markdown(t(
         """
         To ensure our models were not biased by the post-2010 self-publishing flood, we engineered a rigorous data pipeline:
@@ -256,14 +256,14 @@ with tab1:
         * **Normalization:** Converted all prices to constant 2022 USD via CPI-U, followed by IQR outlier removal.
         """,
         """
-        כדי להבטיח אמינות סטטיסטית ולמנוע הטיות הנובעות מהצפת שוק ההוצאה העצמית, יישמנו תהליך עיבוד נתונים קפדני:
-        * **כריית נתונים:** סריקה של כ-**4.6 מיליון** רשומות ממאגר הביקורות של אמזון.
-        * **דגימה הוגנת (Fair-Sampling):** הגבלה של מקסימום 15,000 כותרים לכל פלטפורמה בשנה כדי למנוע הטיית זמן.
-        * **נרמול מחירים:** התאמת כל המחירים ההיסטוריים לשווי הדולר בשנת 2022, וניקוי חריגים סטטיסטיים (IQR).
+        כדי למנוע הטיות סטטיסטיות כתוצאה מהצפת שוק ההוצאה העצמית, יישמנו תהליך עיבוד נתונים קפדני:
+        * **כריית נתונים:** עיבוד של כ-**4.6 מיליון** רשומות ממאגר הביקורות הפתוח של אמזון.
+        * **דגימה מאוזנת:** הגבלנו את הנתונים לעד 15,000 כותרים לכל פלטפורמה בשנה כדי למנוע הטיית זמן.
+        * **נרמול מחירים:** התאמנו את המחירים ההיסטוריים לערך הדולר של שנת 2022, וניקינו חריגים (IQR) לטובת מודל מדויק.
         """
     ))
 
-    st.markdown(t("### Core Hypotheses", "### שלוש השערות המחקר"))
+    st.markdown(t("### Core Hypotheses", "### השערות המחקר"))
     st.markdown(t(
         f"""
         <div class="story-box">
@@ -278,13 +278,13 @@ with tab1:
         """,
         f"""
         <div class="story-box">
-            <b>השערה 1 — הפער הכלכלי:</b> היצע חסר תקדים ריסק את מחירי הספרים הדיגיטליים כלפי מטה, ויצר פער תמחור קבוע בינם לבין ספרי הדפוס.
+            <b>השערה 1 — הפער הכלכלי:</b> היצע חסר תקדים ריסק את מחירי הספרים הדיגיטליים למחירי רצפה, ויצר פער תמחור קבוע מול ספרי הדפוס.
         </div>
         <div class="story-box alt">
-            <b>השערה 2 — מחירי רצפה (Loss Leader):</b> בשוק רווי, נוצר פלח שוק של מחירים אפסיים ומעורבות שיא. שיערנו שהוא נשלט על ידי כותבים עצמאיים.
+            <b>השערה 2 — מחירי רצפה (Loss Leader):</b> בשוק רווי, נוצר פלח שוק של מחירים אפסיים ומעורבות שיא. שיערנו שהוא נשלט על ידי סופרי אינדי.
         </div>
         <div class="story-box">
-            <b>השערה 3 — טביעת אצבע דיגיטלית:</b> המחיר הפך למאפיין כה מובהק, עד שהוא לבדו מנבא בצורה מדויקת האם הספר הוא מודפס או דיגיטלי.
+            <b>השערה 3 — טביעת אצבע דיגיטלית:</b> המחיר הפך למאפיין כה מובהק, עד שהוא לבדו מנבא במדויק האם מדובר בספר מודפס או דיגיטלי.
         </div>
         """
     ), unsafe_allow_html=True)
@@ -304,19 +304,23 @@ with tab2:
         vol = df.groupby(["year", "source_db"]).size().reset_index(name="Titles")
         fig_vol = px.area(vol, x="year", y="Titles", color="source_db", color_discrete_map={"Books": COLOR_BOOKS, "Kindle_Store": COLOR_KINDLE})
         fig_vol.update_layout(title=t("Publication Volume", "מגמת כמות הפרסומים"), plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)")
+        fig_vol.update_xaxes(title_text=t("Year", "שנה"))
+        fig_vol.update_yaxes(title_text=t("Titles", "כותרים"))
         st.plotly_chart(fig_vol, use_container_width=True)
 
     with col2:
         price_trend = df.groupby(["year", "source_db"])["price_real_2022"].median().reset_index()
         fig_price = px.line(price_trend, x="year", y="price_real_2022", color="source_db", markers=True, color_discrete_map={"Books": COLOR_BOOKS, "Kindle_Store": COLOR_KINDLE})
         fig_price.update_layout(title=t("Median Real Price (2022 USD)", "מחיר ריאלי חציוני (בדולר 2022)"), plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)")
+        fig_price.update_xaxes(title_text=t("Year", "שנה"))
+        fig_price.update_yaxes(title_text=t("Price ($)", "מחיר ($)"))
         st.plotly_chart(fig_price, use_container_width=True)
 
 # ============================================================
 # TAB 3: THE LOSS LEADER IDENTITY
 # ============================================================
 with tab3:
-    st.header(t("🎯 The Loss Leader Identity", "🎯 אסטרטגיית מחירי הרצפה"))
+    st.header(t("🎯 The Loss Leader Identity", "🎯 אסטרטגיית מחירי רצפה"))
     st.markdown(t(
         """
         <div class="story-box alt">
@@ -329,7 +333,7 @@ with tab3:
         <div class="story-box alt">
         <b>הגילוי המפתיע:</b> בודדנו קבוצת ספרים שנמכרים במחיר אפסי אך זוכים למעורבות קוראים עצומה. 
         באופן מפתיע, <b>74.8% מהספרים הללו שייכים להוצאות לאור מסורתיות</b> ולא לסופרים עצמאיים. 
-        המסקנה: הוצאות הספרים הוותיקות חותכות מחירים באגרסיביות על כותרי עבר כדי להישאר רלוונטיות בזירה הדיגיטלית.
+        המסקנה: הוצאות הספרים הוותיקות חותכות מחירים באגרסיביות על כותרי עבר דיגיטליים כדי להישאר רלוונטיות בזירה החדשה.
         </div>
         """
     ), unsafe_allow_html=True)
@@ -342,11 +346,13 @@ with tab3:
     fig_scatter = px.scatter(
         sample_df, x="price_real_2022", y="rating_number", color="Cluster",
         log_y=True, opacity=0.7,
-        title=t("K-Means Segments: Price vs. Engagement", "פילוח K-Means: מחיר לעומת מעורבות קוראים"),
+        title=t("K-Means Segments: Price vs. Engagement", "פילוח שוק: מחיר לעומת מעורבות קוראים"),
         color_discrete_sequence=[COLOR_KINDLE, COLOR_BOOKS, "#805AD5", "#A0AEC0"]
     )
     fig_scatter.update_traces(marker=dict(size=9, line=dict(width=0.5, color='rgba(255,255,255,0.5)')))
     fig_scatter.update_layout(plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)", showlegend=False)
+    fig_scatter.update_xaxes(title_text=t("Real Price (USD)", "מחיר ריאלי (דולר)"))
+    fig_scatter.update_yaxes(title_text=t("Total Ratings (Log)", "סה״כ דירוגים (לוגריתמי)"))
     st.plotly_chart(fig_scatter, use_container_width=True)
 
 # ============================================================
@@ -356,15 +362,15 @@ with tab4:
     st.header(t("🤖 Price as a Digital Fingerprint", "🤖 המחיר כטביעת אצבע דיגיטלית"))
     st.markdown(t(
         "A Random Forest classifier proves economics alone can predict a book's platform. **(Accuracy: 81.6%)**",
-        "מודל 'יער אקראי' מוכיח כי נתונים כלכליים בלבד מספיקים כדי לנבא אם ספר הוא דיגיטלי או מודפס. **(דיוק המודל: \u200E81.6%\u200E)**"
+        "מודל 'יער אקראי' מוכיח כי נתונים כלכליים בלבד מספיקים כדי לנבא במדויק אם ספר הוא דיגיטלי או מודפס. **(דיוק: \u200E81.6%\u200E)**"
     ))
 
     if not rf_ok:
-        st.warning("Model unavailable: Requires both Kindle and Print classes.")
+        st.warning(t("Model unavailable: Requires both Kindle and Print classes.", "שגיאה: המודל דורש נתונים הכוללים גם ספרים מודפסים וגם קינדל."))
     else:
         col1, col2 = st.columns(2)
         with col1:
-            price = st.slider(t("Real Price (2022 USD)", "מחיר (בדולרים של 2022)"), 0.0, 50.0, 15.0, 0.5)
+            price = st.slider(t("Real Price (2022 USD)", "מחיר (בדולר 2022)"), 0.0, 50.0, 15.0, 0.5)
             year = st.slider(t("Publication Year", "שנת הוצאה"), int(df["year"].min()), int(df["year"].max()), int(df["year"].median()), 1)
         with col2:
             reviews = st.number_input(t("Number of Reviews", "מספר ביקורות"), min_value=1, max_value=100000, value=250, step=10)
@@ -396,47 +402,85 @@ with tab4:
         with t_col:
             st.subheader(t("Model Classification", "סיווג המודל"))
             if prediction == 1:
-                st.success(t("📱 **KINDLE STORE**", "📱 **חנות קינדל (ספר דיגיטלי)**"))
+                st.success(t("📱 **KINDLE STORE**", "📱 **חנות קינדל (דיגיטלי)**"))
             else:
                 st.info(t("📖 **PHYSICAL BOOK**", "📖 **ספר מודפס (פיזי)**"))
 
             st.markdown(t(
                 "Feature Importance shows **Real Price** (Gini: 0.569) dwarfs publication year (0.332).",
-                "ניתוח המודל מאשר כי ה**מחיר** (Gini: 0.569) הוא המנבא החזק והמובהק ביותר לפורמט הספר."
+                "ניתוח המודל מאשר כי ה**מחיר** (Gini: 0.569) הוא המנבא החזק ביותר לפורמט הספר, משמעותית יותר משנת ההוצאה (0.332)."
             ))
 
 # ============================================================
-# TAB 5: READING COMMUNITIES (NETWORK ANALYSIS)
+# TAB 5: NETWORK ANALYSIS (PAGERANK & LOUVAIN)
 # ============================================================
 with tab5:
-    st.header(t("🕸️ Network Analysis: Core & Communities", "🕸️ ניתוח רשתות: קהילות והשפעה"))
+    st.header(t("🕸️ Network Analysis: Periphery to Core", "🕸️ ניתוח רשתות: מהשוליים למרכז"))
+
+    st.markdown(t(
+        "Based on a co-review network (nodes = books, edges = shared readers), we tested two hypotheses using **PageRank** and **Louvain community detection**.",
+        "בנינו רשת קוראים משותפים (צמתים = ספרים, קשתות = קוראים משותפים) כדי לבחון שתי השערות באמצעות אלגוריתמי **PageRank** ו-**Louvain**."
+    ))
 
     st.markdown(t(
         """
         <div class="story-box">
-        <b>From Periphery to Core:</b> Our Co-Review Network analysis (NetworkX, Louvain) reveals that Indie books didn't just flood the market—they took it over. 
-        Between 2004 and 2020, the PageRank centrality ratio of Indie to Traditional books soared from 0.68 to 0.87. Furthermore, we identified a completely separate 
-        Indie reading ecosystem, growing from just 2 isolated communities to 19 massive parallel markets.
+        <b>H1: Indie books move to the core.</b> Measured by weighted PageRank, self-published books narrowed the gap with traditionally published books, moving from 68% as central to nearly 90%.<br><br>
+        <b>H2: A parallel market emerges.</b> The Kindle revolution created entirely new reader communities. Indie-dominated clusters grew from just 2 isolated communities to 19 massive parallel markets.
         </div>
         """,
         """
         <div class="story-box">
-        <b>מהשוליים למרכז:</b> ניתוח רשת הקוראים המשותפים שלנו חושף שספרי ההוצאה העצמית לא רק הציפו את השוק — הם השתלטו עליו. 
-        בין השנים 2004 ל-2020, יחס המרכזיות (PageRank) של ספר אינדי מול ספר מסורתי זינק מ-0.68 ל-0.87. במקביל, זוהתה צמיחה של אקו-סיסטם נפרד לחלוטין: מ-2 קהילות אינדי מבודדות בתחילת הדרך, ל-19 קהילות ענק שקוראות כמעט אך ורק ספרות עצמאית.
+        <b>השערה 1: מהשוליים למרכז.</b> לפי מדד PageRank, ספרי האינדי (הוצאה עצמית) סגרו את הפער מול ההוצאות המסורתיות, וזינקו מ-68% מרכזיות לכמעט 90%.<br><br>
+        <b>השערה 2: צמיחת שוק מקביל.</b> המהפכה הדיגיטלית יצרה קהילות קוראים חדשות. קהילות נפרדות של ספרי אינדי צמחו מ-2 בלבד בתחילת הדרך, ל-19 שווקים מקבילים וענקיים.
         </div>
         """
     ), unsafe_allow_html=True)
 
-    # Data mirroring the PDF's Network Analysis findings (PageRank & Louvain Communities)
+    # Interactive Network Time Machine
+    st.markdown(t("### ⏳ The Network Time Machine", "### ⏳ מכונת הזמן של הרשת"))
+    st.markdown(t(
+        "Drag the slider to travel through the 4 eras of the Kindle revolution and watch the network metrics evolve.",
+        "גררו את הסליידר כדי לנוע בין 4 התקופות של המהפכה, וצפו כיצד מדדי הרשת משתנים."
+    ))
+
+    periods = ["2004-2007", "2008-2011", "2012-2015", "2016-2020"]
+    selected_period = st.select_slider(
+        t("Select Era", "בחר תקופה"),
+        options=periods,
+        value="2016-2020"
+    )
+
+    # Data mirroring the PDF's Network Analysis findings[cite: 10]
+    network_data = {
+        "2004-2007": {"pagerank": 0.68, "communities": 0, "desc_en": "Pre-Kindle baseline. Indie books are periphery.", "desc_he": "תקופת הבסיס. ספרי אינדי נמצאים לחלוטין בשוליים."},
+        "2008-2011": {"pagerank": 0.72, "communities": 2, "desc_en": "Early KDP era. First tiny Indie communities emerge.", "desc_he": "ימי ה-KDP המוקדמים. 2 קהילות אינדי קטנטנות צצות ברשת."},
+        "2012-2015": {"pagerank": 0.76, "communities": 10, "desc_en": "Expansion. Indie communities multiply.", "desc_he": "תקופת ההתרחבות. קהילות האינדי מכפילות את עצמן."},
+        "2016-2020": {"pagerank": 0.87, "communities": 19, "desc_en": "Mature era. Indie books are nearly 90% as central as Traditional. A parallel market exists.", "desc_he": "שוק בוגר. ספר אינדי מרכזי כמעט כמו ספר מסורתי (\u200E90%\u200E). קיים שוק מקביל לחלוטין."}
+    }
+
+    current_pr = network_data[selected_period]["pagerank"]
+    current_com = network_data[selected_period]["communities"]
+
+    col_met1, col_met2, col_text = st.columns([1, 1, 2])
+    with col_met1:
+        st.metric(t("Indie/Traditional PageRank Ratio", "יחס מרכזיות (אינדי מול מסורתי)"), f"\u200E{current_pr:.2f}\u200E")
+    with col_met2:
+        st.metric(t("Parallel Indie Communities", "כמות קהילות אינדי מבודדות"), f"\u200E{current_com}\u200E")
+    with col_text:
+        st.info(t(network_data[selected_period]["desc_en"], network_data[selected_period]["desc_he"]))
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # Plotly Dual-Axis Chart covering all periods for context
     net_df = pd.DataFrame({
-        "Period": ["2004-2007", "2008-2011", "2012-2015", "2016-2020"],
+        "Period": periods,
         "PageRank_Ratio": [0.68, 0.72, 0.76, 0.87],
-        "Indie_Communities": [1, 2, 10, 19] # Using 1 for base visibility in chart
+        "Indie_Communities": [0.1, 2, 10, 19] # 0.1 used purely for visual baseline display where 0 looks broken
     })
 
     fig_net = make_subplots(specs=[[{"secondary_y": True}]])
 
-    # Bar chart for Louvain Communities
     fig_net.add_trace(
         go.Bar(
             x=net_df["Period"], y=net_df["Indie_Communities"],
@@ -445,7 +489,6 @@ with tab5:
         ),
         secondary_y=False,
     )
-    # Line chart for PageRank Ratio
     fig_net.add_trace(
         go.Scatter(
             x=net_df["Period"], y=net_df["PageRank_Ratio"],
@@ -456,13 +499,16 @@ with tab5:
     )
 
     fig_net.update_layout(
-        title=t("Indie Market Growth: Communities vs. Network Centrality", "צמיחת שוק האינדי: היווצרות קהילות מול מרכזיות ברשת"),
+        title=t("Evolution Over Time (2004-2020)", "התפתחות רשת הקוראים לאורך זמן (\u200E2004-2020\u200E)"),
         plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
-        hovermode="x unified", height=450
+        hovermode="x unified", height=450, legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
     )
 
-    fig_net.update_yaxes(title_text=t("Number of Distinct Communities", "כמות קהילות מבודדות"), secondary_y=False)
-    fig_net.update_yaxes(title_text=t("Indie/Traditional Centrality Ratio", "יחס מרכזיות אינדי-מסורתי"), secondary_y=True, range=[0.6, 0.9])
+    # Add a vertical highlight line for the selected period
+    fig_net.add_vline(x=selected_period, line_width=3, line_dash="dash", line_color="rgba(128,128,128,0.5)")
+
+    fig_net.update_yaxes(title_text=t("Distinct Communities", "כמות קהילות"), secondary_y=False)
+    fig_net.update_yaxes(title_text=t("PageRank Ratio", "יחס מרכזיות"), secondary_y=True, range=[0.6, 0.9])
 
     st.plotly_chart(fig_net, use_container_width=True)
 
@@ -506,6 +552,8 @@ with tab6:
             fig_race.layout.updatemenus[0].buttons[0].args[1]["frame"]["duration"] = 800
 
         fig_race.update_layout(plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)", yaxis={"categoryorder": "total ascending"}, height=400, showlegend=False)
+        fig_race.update_xaxes(title_text=t("Total Books", "סה״כ ספרים"))
+        fig_race.update_yaxes(title_text=t("Format", "פורמט"))
         st.plotly_chart(fig_race, use_container_width=True)
 
 # ============================================================
@@ -592,6 +640,8 @@ with tab7:
         ))
 
     fig_stump.update_layout(height=400, plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)", showlegend=False)
+    fig_stump.update_xaxes(title_text=t("Publication Year", "שנת פרסום"))
+    fig_stump.update_yaxes(title_text=t("Titles Published", "כותרים שפורסמו"))
     st.plotly_chart(fig_stump, use_container_width=True)
 
     # --------------------------------------------------------
