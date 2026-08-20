@@ -1,10 +1,9 @@
 """
 A Needle in the Kindle — Premium Data Journalism Dashboard
 ============================================================
-Interactive exploration of the digital publishing revolution (2000-2022).
-
-This version focuses on high-end UI/UX, top-tab navigation, and fully
-interactive Plotly charts, leaving the core data and ML logic intact.
+Interactive exploration of the digital publishing revolution.
+This version uses a highly professional corporate color palette
+and adaptive CSS to ensure perfect contrast in both Dark and Light modes.
 """
 
 import streamlit as st
@@ -24,107 +23,88 @@ st.set_page_config(
     page_title="A Needle in the Kindle",
     layout="wide",
     page_icon="📚",
-    initial_sidebar_state="collapsed", # Keep sidebar closed to focus on tabs
+    initial_sidebar_state="collapsed",
 )
 
 # ============================================================
-# PREMIUM CSS THEME
+# PREMIUM CORPORATE COLORS (Professional & Accessible)
 # ============================================================
-PALETTE = {
-    "navy": "#14213D",
-    "navy_light": "#2A3B63",
-    "kindle_orange": "#FF9900",
-    "bg": "#FAFAFA",
-    "card_bg": "#FFFFFF",
-    "text_dark": "#1F2933",
-    "text_muted": "#64748B",
-    "border": "#E5E7EB",
-    "accent_purple": "#4B0082",
-}
+COLOR_BOOKS = "#4A5568"     # Deep Slate (Professional/Classic for Print)
+COLOR_KINDLE = "#3182ce"    # Steel Blue (Modern/Tech for Digital)
+COLOR_ACCENT = "#38b2ac"    # Teal (For highlights/alternatives)
 
+# Theme-aware CSS for perfect contrast
 st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');
 
-    /* Hide default Streamlit chrome to make it look like a standalone app */
+    /* Hide the default Streamlit chrome */
     #MainMenu {{ visibility: hidden; }}
     footer {{ visibility: hidden; }}
     [data-testid="stDeployButton"] {{ visibility: hidden; }}
-    
-    /* Hide the sidebar toggle button since we use top tabs now */
     [data-testid="collapsedControl"] {{ display: none; }}
 
-    /* Typography */
-    html, body, .main {{
-        background-color: {PALETTE['bg']};
-        font-family: 'Inter', sans-serif;
-        color: {PALETTE['text_dark']};
-    }}
-
+    /* Typography Overrides */
     h1, h2, h3 {{
         font-family: 'Playfair Display', serif;
-        color: {PALETTE['navy']};
     }}
 
-    /* Customizing Tabs to look like premium navigation */
+    /* Professional Top Tabs */
     .stTabs [data-baseweb="tab-list"] {{
-        gap: 24px;
-        background-color: transparent;
-        padding-bottom: 10px;
+        gap: 15px;
+        padding-bottom: 12px;
     }}
     .stTabs [data-baseweb="tab"] {{
-        height: 50px;
-        white-space: pre-wrap;
-        border-radius: 4px;
-        padding: 10px 16px;
-        font-size: 1rem;
+        height: 65px; 
+        padding: 10px 24px;
+        font-size: 1.15rem; 
         font-weight: 600;
-        color: {PALETTE['text_muted']};
+        border-radius: 8px 8px 0 0;
         transition: all 0.2s ease;
     }}
-    .stTabs [data-baseweb="tab"]:hover {{
-        color: {PALETTE['kindle_orange']};
-        background-color: rgba(255, 153, 0, 0.1);
-    }}
     .stTabs [aria-selected="true"] {{
-        background-color: {PALETTE['navy']} !important;
-        color: white !important;
-        border-radius: 6px;
+        background-color: var(--secondary-background-color);
+        border-bottom: 4px solid {COLOR_KINDLE} !important;
     }}
 
-    /* Metric cards styling */
+    /* Story/Context Boxes - using native variables for perfect dark/light mode contrast */
+    .story-box {{
+        background-color: var(--secondary-background-color);
+        color: var(--text-color);
+        border-left: 5px solid {COLOR_KINDLE};
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem;
+        font-size: 1.05rem;
+        line-height: 1.6;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }}
+    .story-box.alt {{
+        border-left-color: {COLOR_BOOKS};
+    }}
+
+    /* Metric Cards */
     div[data-testid="stMetric"] {{
-        background-color: {PALETTE['card_bg']};
-        border: 1px solid {PALETTE['border']};
-        border-left: 4px solid {PALETTE['kindle_orange']};
+        background-color: var(--secondary-background-color);
+        border: 1px solid rgba(128, 128, 128, 0.2);
         border-radius: 8px;
-        padding: 1rem 1.5rem;
-        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        padding: 1.2rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }}
     div[data-testid="stMetricValue"] {{
-        color: {PALETTE['navy']};
         font-family: 'Playfair Display', serif;
         font-weight: 700;
     }}
 
-    /* Sliders */
-    .stSlider > div > div > div > div {{ background-color: {PALETTE['kindle_orange']} !important; }}
-
-    /* Story boxes for narrative context */
-    .story-box {{
-        background-color: {PALETTE['card_bg']};
-        border-left: 4px solid {PALETTE['navy']};
-        border-radius: 6px;
-        padding: 1.2rem;
-        margin-bottom: 1rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    /* Sliders - Clean Blue instead of aggressive red */
+    .stSlider > div > div > div > div {{ 
+        background-color: {COLOR_KINDLE} !important; 
     }}
-    .story-box.orange {{ border-left-color: {PALETTE['kindle_orange']}; }}
     </style>
 """, unsafe_allow_html=True)
 
 # ============================================================
-# DATA LOADING & CLEANING (Logic remains unchanged)
+# DATA LOADING & CLEANING
 # ============================================================
 
 def clean_price(val):
@@ -187,7 +167,7 @@ if df.empty:
     st.stop()
 
 # ============================================================
-# CACHED MODELS (Logic remains unchanged)
+# CACHED MODELS
 # ============================================================
 @st.cache_resource
 def train_rf_model(data):
@@ -207,10 +187,10 @@ rf_model, rf_features, rf_ok = train_rf_model(df)
 # ============================================================
 st.title("📚 A Needle in the Kindle")
 st.markdown("Exploring the economics, pricing, and reading behaviors of the digital publishing revolution (2000–2022).")
-st.write("") # Spacing
+st.write("")
 
 # ============================================================
-# TOP TAB NAVIGATION (Replaces Sidebar)
+# TOP TAB NAVIGATION
 # ============================================================
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "🏠 Executive Summary",
@@ -236,10 +216,10 @@ with tab1:
     <div class="story-box">
         <b>H1 — The Economic Divide:</b> The digital revolution triggered an explosion in publication volume, driving digital book prices toward a floor and creating a persistent pricing gap between physical and digital formats.
     </div>
-    <div class="story-box orange">
+    <div class="story-box">
         <b>H2 — The "Loss Leader" Identity:</b> A distinct low-price, high-engagement segment emerged. Is it driven purely by Indie authors chasing exposure — or something else?
     </div>
-    <div class="story-box">
+    <div class="story-box alt">
         <b>H3 — Price as a Digital Fingerprint:</b> A book's price predicts its publishing platform (Kindle vs. Physical) more strongly than its publication year or reader engagement.
     </div>
     """, unsafe_allow_html=True)
@@ -258,9 +238,9 @@ with tab2:
     with col1:
         st.subheader("Publication Volume Trends")
         vol = df.groupby(["year", "source_db"]).size().reset_index(name="Titles")
-        fig_vol = px.area( # Changed to Area chart for a more premium, filled look
+        fig_vol = px.area(
             vol, x="year", y="Titles", color="source_db",
-            color_discrete_map={"Books": PALETTE["navy"], "Kindle_Store": PALETTE["kindle_orange"]},
+            color_discrete_map={"Books": COLOR_BOOKS, "Kindle_Store": COLOR_KINDLE},
             labels={"year": "Year", "source_db": "Format"}
         )
         fig_vol.update_layout(plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)", hovermode="x unified")
@@ -271,7 +251,7 @@ with tab2:
         price_trend = df.groupby(["year", "source_db"])["price_real_2022"].median().reset_index()
         fig_price = px.line(
             price_trend, x="year", y="price_real_2022", color="source_db", markers=True,
-            color_discrete_map={"Books": PALETTE["navy"], "Kindle_Store": PALETTE["kindle_orange"]},
+            color_discrete_map={"Books": COLOR_BOOKS, "Kindle_Store": COLOR_KINDLE},
             labels={"year": "Year", "price_real_2022": "Median Price ($)", "source_db": "Format"}
         )
         fig_price.update_traces(line=dict(width=3), marker=dict(size=8))
@@ -284,7 +264,7 @@ with tab2:
 with tab3:
     st.header("🎯 The Loss Leader Identity")
     st.markdown("""
-    <div class="story-box orange">
+    <div class="story-box">
     <b>The Surprise Finding:</b> The low-price, high-engagement cluster is <b>74.8% Traditional publishers</b>. 
     Legacy publishers appear to aggressively discount digital backlists to compete, rather than Indie authors being the sole driver.
     </div>
@@ -301,11 +281,10 @@ with tab3:
         log_y=True,
         labels={"price_real_2022": "Real Price (USD)", "rating_number": "Total Ratings (Log)"},
         opacity=0.8,
-        color_discrete_sequence=[PALETTE["navy"], PALETTE["kindle_orange"], "#4B0082", "#8FA6C9"]
+        color_discrete_sequence=[COLOR_KINDLE, COLOR_BOOKS, COLOR_ACCENT, "#CBD5E0"]
     )
 
-    # Premium tooltip styling
-    fig_scatter.update_traces(marker=dict(size=10, line=dict(width=1, color='DarkSlateGrey')))
+    fig_scatter.update_traces(marker=dict(size=10, line=dict(width=1, color='rgba(0,0,0,0.2)')))
     fig_scatter.update_layout(plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)")
     st.plotly_chart(fig_scatter, use_container_width=True)
 
@@ -341,17 +320,17 @@ with tab4:
                 value=kindle_prob,
                 domain={"x": [0, 1], "y": [0, 1]},
                 title={"text": "Probability of Kindle Format"},
-                number={"suffix": "%", "font": {"color": PALETTE["navy"]}},
+                number={"suffix": "%"},
                 gauge={
                     "axis": {"range": [None, 100], "tickwidth": 1},
-                    "bar": {"color": PALETTE["kindle_orange"]},
-                    "bgcolor": "white",
+                    "bar": {"color": COLOR_KINDLE},
+                    "bgcolor": "rgba(0,0,0,0.05)",
                     "borderwidth": 0,
-                    "steps": [{"range": [0, 50], "color": "#F1F3F5"}, {"range": [50, 100], "color": "#FFF1DB"}],
-                    "threshold": {"line": {"color": PALETTE["navy"], "width": 4}, "thickness": 0.75, "value": 50}
+                    "steps": [{"range": [0, 50], "color": "rgba(0,0,0,0.05)"}, {"range": [50, 100], "color": "rgba(49, 130, 206, 0.15)"}],
+                    "threshold": {"line": {"color": COLOR_BOOKS, "width": 4}, "thickness": 0.75, "value": 50}
                 }
             ))
-            fig_gauge.update_layout(height=350, margin=dict(l=20, r=20, t=50, b=20))
+            fig_gauge.update_layout(height=350, margin=dict(l=20, r=20, t=50, b=20), paper_bgcolor="rgba(0,0,0,0)")
             st.plotly_chart(fig_gauge, use_container_width=True)
 
         with t_col:
@@ -364,37 +343,35 @@ with tab4:
             st.write("Feature Importance Analysis confirms that **Real Price** is overwhelmingly the strongest predictor, vastly outperforming publication year.")
 
 # ============================================================
-# TAB 5: READING COMMUNITIES (INTERACTIVE NETWORK INSIGHTS)
+# TAB 5: READING COMMUNITIES
 # ============================================================
 with tab5:
     st.header("🕸️ Reading Communities & Network Behavior")
     st.markdown("""
-    <div class="story-box">
+    <div class="story-box alt">
     <b>The "Binge-Reading" Discovery:</b> Our PageRank analysis revealed that the digital revolution didn't just create more books—it created <b>entirely new reading behaviors</b>. 
     We identified a massive, isolated community of binge-readers (primarily Romance/Erotica consuming sequential Kindle series) that operates completely separately from traditional literature readers.
     </div>
     """, unsafe_allow_html=True)
 
-    # Creating an interactive representation of the discovered communities
     community_data = pd.DataFrame({
         "Community": ["Binge-Readers (Romance/Erotica)", "Classic Literature Readers"],
         "Market Dominance": ["Indie / Self-Published (63%)", "Traditional Legacy"],
         "Sentiment (Language)": ["'Love', High Emotion", "'Neutral', Analytical"],
-        "PageRank Centrality": [85, 35],  # Represents relative influence
+        "PageRank Centrality": [85, 35],
         "Network Size (Readers)": [150000, 45000]
     })
 
-    # Interactive Bubble Chart to visualize the communities
     fig_bubbles = px.scatter(
         community_data, x="Community", y="PageRank Centrality", size="Network Size (Readers)",
         color="Sentiment (Language)", text="Market Dominance",
-        color_discrete_map={"'Love', High Emotion": PALETTE["kindle_orange"], "'Neutral', Analytical": PALETTE["navy"]},
+        color_discrete_map={"'Love', High Emotion": COLOR_KINDLE, "'Neutral', Analytical": COLOR_BOOKS},
         title="Community Isolation: Sentiment, Centrality, and Size"
     )
 
     fig_bubbles.update_traces(
         textposition="bottom center",
-        marker=dict(line=dict(width=2, color='DarkSlateGrey')),
+        marker=dict(line=dict(width=2, color='rgba(0,0,0,0.5)')),
         hovertemplate="<b>%{x}</b><br>Centrality Score: %{y}<br>Publisher: %{text}<extra></extra>"
     )
     fig_bubbles.update_layout(
@@ -409,28 +386,34 @@ with tab5:
 with tab6:
     st.header("📈 The Digital Publishing Explosion")
 
-    years = range(int(df["year"].min()), int(df["year"].max()) + 1)
-    sources = df["source_db"].unique()
-    idx = pd.MultiIndex.from_product([years, sources], names=["year", "source_db"])
+    # Filter data to start from 2010 per user request
+    vol_df = df[df["year"] >= 2010].copy()
 
-    annual_df = df.groupby(["year", "source_db"]).size().reindex(idx, fill_value=0).reset_index(name="Annual_Count").sort_values(by="year")
-    annual_df["Cumulative_Volume"] = annual_df.groupby("source_db")["Annual_Count"].cumsum()
+    if vol_df.empty or vol_df["year"].nunique() <= 1:
+        st.warning("Not enough data from 2010 onwards to show animation.")
+    else:
+        years = range(int(vol_df["year"].min()), int(vol_df["year"].max()) + 1)
+        sources = vol_df["source_db"].unique()
+        idx = pd.MultiIndex.from_product([years, sources], names=["year", "source_db"])
 
-    fig_race = px.bar(
-        annual_df, x="Cumulative_Volume", y="source_db", color="source_db",
-        animation_frame="year", animation_group="source_db", orientation="h",
-        range_x=[0, annual_df["Cumulative_Volume"].max() * 1.05],
-        title="Cumulative Titles Published (Press Play ▶️)",
-        labels={"Cumulative_Volume": "Total Books", "source_db": "Format", "year": "Year"},
-        color_discrete_map={"Books": PALETTE["navy"], "Kindle_Store": PALETTE["kindle_orange"]},
-    )
+        annual_df = vol_df.groupby(["year", "source_db"]).size().reindex(idx, fill_value=0).reset_index(name="Annual_Count").sort_values(by="year")
+        annual_df["Cumulative_Volume"] = annual_df.groupby("source_db")["Annual_Count"].cumsum()
 
-    if fig_race.layout.updatemenus:
-        fig_race.layout.updatemenus[0].buttons[0].args[1]["frame"]["duration"] = 800
+        fig_race = px.bar(
+            annual_df, x="Cumulative_Volume", y="source_db", color="source_db",
+            animation_frame="year", animation_group="source_db", orientation="h",
+            range_x=[0, annual_df["Cumulative_Volume"].max() * 1.05],
+            title="Cumulative Titles Published (2010-2022) - Press Play ▶️",
+            labels={"Cumulative_Volume": "Total Books", "source_db": "Format", "year": "Year"},
+            color_discrete_map={"Books": COLOR_BOOKS, "Kindle_Store": COLOR_KINDLE},
+        )
 
-    fig_race.update_layout(
-        plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
-        yaxis={"categoryorder": "total ascending"}, height=400,
-        showlegend=False
-    )
-    st.plotly_chart(fig_race, use_container_width=True)
+        if fig_race.layout.updatemenus:
+            fig_race.layout.updatemenus[0].buttons[0].args[1]["frame"]["duration"] = 800
+
+        fig_race.update_layout(
+            plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
+            yaxis={"categoryorder": "total ascending"}, height=400,
+            showlegend=False
+        )
+        st.plotly_chart(fig_race, use_container_width=True)
