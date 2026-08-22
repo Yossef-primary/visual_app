@@ -5,7 +5,7 @@ Interactive exploration of the digital publishing revolution (2000-2022).
 
 Refactored for:
 - 3 Main Hypothesis Tabs + Side Navigation for sub-hypotheses.
-- Discreet Dev-only Language Switcher (Top Corner).
+- Discreet Dev-only Language Switcher (Top Corner) - Currently disabled.
 - Fixed top padding and enlarged main headers.
 - Dynamic LTR / RTL CSS rendering with perfect numerical alignments (\u200E).
 - Premium UI/UX with corporate gray-blue color palette.
@@ -37,15 +37,9 @@ st.set_page_config(
 # ============================================================
 # DEV-ONLY LANGUAGE TOGGLE (Top Corner)
 # ============================================================
-# Placed in a small column at the top so it doesn't stand out
-col_spacer, col_lang = st.columns([10, 1])
-with col_lang:
-    lang = st.selectbox(
-        "Dev Lang",
-        ["English", "עברית"],
-        label_visibility="collapsed",
-        index=1 # Default to Hebrew for your testing
-    )
+# Language switcher is temporarily hidden.
+# Hardcoded to English for now. Hebrew support remains intact in the code.
+lang = "English"
 
 def t(en_str, he_str):
     """Returns English string if 'English' is selected, else returns the Hebrew string."""
